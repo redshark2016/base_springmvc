@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="common">
+	<sql id="order">
+		<if test="orderConditon != null" >
+			<foreach collection="orderConditon" item = "item" index = "index" open = "ORDER BY" separator = "," close = "">
+				${item.fieldName} ${item.compositorType}
+			</foreach>
+		</if>
+	</sql>
+	
+	<sql id="singleCondition">
+		<if test="singleCondition != null ">
+			<foreach collection="singleCondition" open = "and" item = "item" separator = "and">
+				${item.FieldNames[0]} ${item.matchType.value}#{item.fieldValue}
+			</foreach>
+		</if>
+	</sql>
+	
+	<sql id="multiCondition">
+		<if test="multiCondition != null">
+			<foreach collection="multiCondition" item = "item" open = "AND" separator = "AND">
+				
+				<foreach collection="item.FieldNames" open = "(" item = "item2" separator = "OR" close=")">
+						${item2} ${item.matchType.value}#{item.fieldValue}
+				</foreach>
+			</foreach>
+		</if>
+	</sql>
+	
+</mapper>

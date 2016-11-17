@@ -1,0 +1,17 @@
+#Thu Sep 22 21:43:42 CST 2016
+eclipse.preferences.version=1
+encoding//WebRoot/WEB-INF/jsp/index.jsp=UTF-8
+encoding//src/resources/log4j.properties=UTF-8
+encoding//src/wechat/main/com/redshark/utils=UTF-8
+encoding//src/wechat/main/com/redshark/utils/Article.java=UTF-8
+encoding//src/wechat/main/com/redshark/utils/BaseMessage.java=UTF-8
+encoding//src/wechat/main/com/redshark/utils/Button.java=UTF-8
+encoding//src/wechat/main/com/redshark/utils/HttpURLConnectionUtil.java=UTF-8
+encoding//src/wechat/main/com/redshark/utils/Menu.java=UTF-8
+encoding//src/wechat/main/com/redshark/utils/MessageUtil.java=UTF-8
+encoding//src/wechat/main/com/redshark/utils/Music.java=UTF-8
+encoding//src/wechat/main/com/redshark/utils/MusicMessage.java=UTF-8
+encoding//src/wechat/main/com/redshark/utils/NewsMessage.java=UTF-8
+encoding//src/wechat/main/com/redshark/utils/SignUtil.java=UTF-8
+encoding//src/wechat/main/com/redshark/utils/TextMessage.java=UTF-8
+encoding/<project>=UTF-8

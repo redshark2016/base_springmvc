@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.redshark.dao.UserDao">
+	<resultMap type="com.redshark.model.User"
+		id="resourcesResultMap">
+		<id property="id" column="id" />
+		<result property="user_name" column="user_name" />
+		<result property="password" column="password" />
+		<result property="idcard" column="idcard" />
+		<result property="real_name" column="real_name" />
+		<result property="birthday" column="birthday" />
+		<result property="email" column="email" />
+		<result property="question" column="question" />
+		<result property="answer" column="answer" />
+		<result property="active_flag" column="active_flag" />
+		<result property="reg_date" column="reg_date" />
+		<result property="type" column="type" />
+		<result property="login_num" column="login_num" />
+		<result property="last_login_date" column="last_login_date" />
+		<result property="current_login_date" column="current_login_date" />
+		<result property="last_update_time" column="last_update_time"/>
+		<result property="old_user_name" column="old_user_name"/>
+		<result property="sort" column="sort"/>
+	</resultMap>
+	
+	<insert id="save" parameterType="com.redshark.model.User">
+	   <selectKey resultType="java.lang.String" keyProperty="id" order="AFTER" >
+    		  SELECT seq_SYS_USER.CURRVAL AS id from dual
+   		</selectKey>
+		INSERT INTO t_sys_user
+		(id,user_name,password,idcard,real_name,birthday,email,
+		question,answer,active_flag,reg_date,type,login_num,last_login_date,current_login_date,
+		last_update_time, old_user_name,sort) VALUES
+		(seq_SYS_USER.NEXTVAL,#{user_name},#{password},#{idcard,jdbcType=VARCHAR},#{real_name,jdbcType=VARCHAR},#{birthday,jdbcType=DATE},#{email,jdbcType=VARCHAR},
+		#{question,jdbcType=VARCHAR},#{answer,jdbcType=VARCHAR},#{active_flag,jdbcType=VARCHAR},#{reg_date,jdbcType=DATE},#{type,jdbcType=VARCHAR},#{login_num,jdbcType=VARCHAR},#{last_login_date,jdbcType=DATE},#{current_login_date,jdbcType=DATE},
+		#{last_update_time,jdbcType=DATE} ,#{old_user_name,jdbcType=VARCHAR},#{sort,jdbcType=INTEGER})
+	</insert>
+	
+	<!-- <update id="update" parameterType="com.redshark.model.User">
+		update t_sys_user set
+		user_name=#{user_name},password=#{password},idcard=#{idcard,jdbcType=VARCHAR},real_name=#{real_name,jdbcType=VARCHAR},
+		birthday=#{birthday,jdbcType=VARCHAR},email=#{email,jdbcType=VARCHAR},question=#{question,jdbcType=VARCHAR},answer=#{answer,jdbcType=VARCHAR},active_flag=#{active_flag,jdbcType=VARCHAR},
+		reg_date=#{reg_date,jdbcType=DATE},type=#{type,jdbcType=VARCHAR},login_num=#{login_num,jdbcType=VARCHAR},last_login_date=#{last_login_date,jdbcType=DATE},current_login_date=#{current_login_date,jdbcType=DATE},
+	,last_update_time=#{last_update_time,jdbcType=DATE},old_user_name=#{old_user_name,jdbcType=VARCHAR},sort=#{sort,jdbcType=INTEGER} where
+		id=#{id}
+	</update> -->
+	
+	<update id="update" parameterType="com.redshark.model.User">
+		update t_sys_user set
+			user_name=#{user_name},idcard=#{idcard},last_update_time=sysdate where
+		id=#{id}
+	</update>
+	
+	<delete id="delete" parameterType="java.lang.String">
+		update t_sys_user set active_flag = -1 where id = #{id}
+	</delete>
+	
+	 <!-- mybsits_config中配置的alias类别名,也可直接配置resultType为类路劲 -->  
+	<select id="findById" parameterType="String" resultType="com.redshark.model.User">
+		select id,user_name,idcard from t_sys_user where id=#{id}
+	</select>
+	
+	<!-- 查询资源，根据id -->
+	<select id="load" parameterType="java.lang.String"
+		resultMap="resourcesResultMap">
+		<![CDATA[
+			SELECT * from t_sys_user res
+				WHERE res.id = #{id} 
+		]]>
+	</select>
+	
+	<select id="findAll" resultType="com.redshark.model.User">
+		select ID,USER_NAME,
+			PASSWORD,
+			IDCARD,
+			REAL_NAME,
+			BIRTHDAY,
+			EMAIL,
+			QUESTION,
+			ANSWER,
+			ACTIVE_FLAG,
+			REG_DATE,
+			TYPE,
+			LOGIN_NUM,
+			LAST_LOGIN_DATE,
+			CURRENT_LOGIN_DATE,
+			LAST_UPDATE_TIME,
+		OLD_USER_NAME,
+		SORT from t_sys_user where active_flag !=-1
+		<include refid = "common.singleCondition"/>
+		<include refid = "common.multiCondition"/>
+		<include refid = "common.order"/>
+	</select>
+	
+	<select id="getPageUserByPagination" parameterType="java.util.HashMap" resultMap="resourcesResultMap">
+		select * from t_sys_user where 1=1
+		<include refid = "common.singleCondition"/>
+		<include refid = "common.multiCondition"/>
+		<include refid = "common.order"/>
+	</select>
+	
+	
+	<delete id="deleteBatch" parameterType="java.lang.String">
+		update t_sys_user set active_flag=-1 where id in
+		<foreach item="idItem" collection="array" open="(" separator=","
+			close=")">
+			#{idItem}
+		</foreach>
+	</delete>
+	
+	<select id="getUserInfo" parameterType = "com.redshark.model.User" resultMap = "resourcesResultMap">
+		SELECT * FROM t_sys_user WHERE user_name = #{user_name} 
+		<if test="password !=null">
+				AND password = #{password}
+		</if>	
+		<if test="type !=null">
+			AND type = #{type}
+		</if>
+	</select>
+	
+</mapper>

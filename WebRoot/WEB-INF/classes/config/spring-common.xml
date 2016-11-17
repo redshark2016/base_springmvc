@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.0.xsd">
+
+	 	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+			<property name="location">
+					<value>classpath:config/jdbc.properties</value>
+			</property>
+		</bean> 
+		<bean id = "mySqlDialect" class = "com.redshark.common.page.dialect.MySqlDialect"></bean>
+		<bean id = "oracleDialect" class = "com.redshark.common.page.dialect.OraclDialect"></bean>
+		<bean id="paginationInterceptor" class="com.redshark.common.page.util.PaginationInterceptor">
+			<property name="dialect">
+				<ref bean = "${dialect}"/>
+			</property>
+		</bean> 
+	
+ 	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${driverClassName}" />
+		<property name="jdbcUrl" value="${url}" />
+		<property name="user" value="${username}" />
+		<property name="password" value="${password}" />
+		<property name="autoCommitOnClose" value="${autoCommitOnClose}"/>
+		<property name="initialPoolSize" value="${cpool.minPoolSize}"/>
+		<property name="minPoolSize" value="${cpool.minPoolSize}"/>
+		<property name="maxPoolSize" value="${cpool.maxPoolSize}"/>
+		<property name="testConnectionOnCheckin" value="${cpool.testConnectionOnCheckin}"/>
+		<property name="automaticTestTable" value="${cpool.automaticTestTable}"/>
+		<property name="idleConnectionTestPeriod" value="${cpool.idleConnectionTestPeriod}"/>
+		<property name="maxIdleTime" value = "${cpool.maxIdleTime}"/>
+		<property name="testConnectionOnCheckout" value="${cpool.testConnectionOnCheckout}"/>
+		<!--  property name="checkoutTimeout" value="${cpool.checkoutTimeout}"/>
+		<property name="maxIdleTime" value="${cpool.maxIdleTime}"/>
+		<property name="acquireIncrement" value="${cpool.acquireIncrement}"/>
+		<property name="maxIdleTimeExcessConnections" value="${cpool.maxIdleTimeExcessConnections}"/-->
+	</bean>
+	<!--
+		2. mybatis的SqlSession的工厂: SqlSessionFactoryBean dataSource:引用数据源
+		MyBatis定义数据源,同意加载配置
+	-->
+	
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="configLocation" value="classpath:config/mybatis/mybatis-config.xml" />
+		<property name="dataSource" ref="dataSource" />
+		<property name="mapperLocations" value = "classpath:config/mybatis/mapps/**/*.xml"/>
+		<property name="plugins">
+			<ref bean = "paginationInterceptor"/>
+			
+		</property>
+		
+	</bean>
+	
+	<!-- 注册spring 管理注册，如果不注册的话，将不能用配置文件 propertyConfigurer方式  -->
+	<bean class="com.redshark.common.web.springmvc.ApplicationContextRegister"></bean>
+	
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="annotationClass" value="org.springframework.stereotype.Repository"/>
+        <property name="basePackage" value="com.redshark.dao.**"/>
+    </bean>
+	
+	<!-- spring 事务管理 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<!-- 事务注解驱动 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+    <tx:advice id="txAdviceForTransactionManager" transaction-manager="transactionManager">
+    	<tx:attributes>
+    		<tx:method name="*" rollback-for="java.lang.Exception" propagation="REQUIRED"/>
+    	</tx:attributes>
+    </tx:advice>
+</beans>

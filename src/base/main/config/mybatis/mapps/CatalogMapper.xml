@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+	namespace：必须与对应的接口全类名一致
+	id:必须与对应接口的某个对应的方法名一致
+	
+ -->
+<mapper namespace="com.redshark.dao.CatalogDao">
+	<resultMap type="com.redshark.model.CatalogBean"
+		id="resourcesResultMap">
+		<id property="id" column="id" />
+		<result property="catalog_name" column="catalog_name" />
+		<result property="catalog_desc" column="catalog_desc" />
+		<result property="create_time" column="create_time" />
+		<result property="sort" column="sort" />
+		<result property="last_update_time" column="last_update_time" />
+	</resultMap>
+	
+	<insert id="save" parameterType="com.redshark.model.CatalogBean">
+	   <selectKey resultType="java.lang.String" keyProperty="id" order="AFTER" >
+    		  SELECT seq_product_catalog.CURRVAL AS id from dual
+   		</selectKey>
+		INSERT INTO ta_product_catalog
+		(id,catalog_name,catalog_desc,sort,create_time) VALUES
+		(seq_product_catalog.NEXTVAL,#{catalog_name},#{catalog_desc,jdbcType=VARCHAR},#{sort,jdbcType=INTEGER},sysdate)
+	</insert>
+	
+	<update id="update" parameterType="com.redshark.model.CatalogBean">
+		update ta_product_catalog set
+			catalog_name=#{catalog_name},catalog_desc=#{catalog_desc},last_update_time=sysdate,sort=#{sort,jdbcType=INTEGER} where
+		id=#{id}
+	</update>
+	
+	<delete id="delete" parameterType="java.lang.String">
+		delete ta_product_catalog  where id = #{id}
+	</delete>
+	
+	 <!-- mybsits_config中配置的alias类别名,也可直接配置resultType为类路劲 -->  
+	<select id="findById" parameterType="String" resultType="com.redshark.model.CatalogBean">
+		select * from ta_product_catalog where id=#{id}
+	</select>
+	
+	<!-- 查询资源，根据id -->
+	<select id="load" parameterType="java.lang.String"
+		resultMap="resourcesResultMap">
+		<![CDATA[
+			SELECT * from ta_product_catalog res
+				WHERE res.id = #{id} 
+		]]>
+	</select>
+	
+	<select id="findAll" resultType="com.redshark.model.CatalogBean">
+		select * from ta_product_catalog 
+	</select>
+	
+	<delete id="deleteBatch" parameterType="java.lang.String">
+		delete ta_product_catalog where id in
+		<foreach item="idItem" collection="array" open="(" separator=","
+			close=")">
+			#{idItem}
+		</foreach>
+	</delete>
+	
+	
+</mapper>
